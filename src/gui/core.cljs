@@ -173,7 +173,7 @@
 
 (defn app
   []
-  [:<> [counter] [temperature-converter] [flight-booker] [timer]])
+  [:<> [counter] [temperature-converter] [flight-booker] [timer] [crud]])
 
 (defn ^:export init!
   []

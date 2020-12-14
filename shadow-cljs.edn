@@ -8,5 +8,6 @@
     :test {:autorun true :output-to "out/node-tests.js" :target :node-test}}
  :dependencies
    [[reagent "1.0.0-rc1" :exclusions [cljsjs/react cljsjs/react-dom]]
+    [instaparse "1.4.10"]
     [binaryage/devtools "1.0.2"]]
- :source-paths ["src" "test"]}
+ :source-paths ["src" "test" "resources"]}

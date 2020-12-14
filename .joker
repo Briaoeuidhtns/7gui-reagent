@@ -1,1 +1,3 @@
-{:known-macros [reagent.core/with-let]}
+{:ignore-unused-namespaces [build.inline]
+ :known-macros [reagent.core/with-let]
+ :known-tags [inline/resource inline/file]}

@@ -1,0 +1,21 @@
+html {
+    box-sizing: border-box;
+}
+
+*, *::before, *::after {
+    box-sizing: inherit;
+}
+
+.card {
+  padding: 2rem;
+  margin: 3rem 1rem;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+  display: grid;
+  grid-gap: 1rem;
+  grid-auto-flow: column;
+  width: fit-content;
+}
+
+.invalid {
+  background-color: red;
+}

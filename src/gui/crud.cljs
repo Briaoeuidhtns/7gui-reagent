@@ -7,12 +7,6 @@
    [clojure.pprint :refer [cl-format]]
    [clojure.string :as str]))
 
-(defonce ^:private unique-src (atom 0))
-(defn new-id
-  "Create a new impure unique id"
-  ([] (new-id ""))
-  ([prefix] (str prefix (swap! unique-src inc))))
-
 (defn filter-list
   [value selected & {f :filter :as props}]
   (r/with-let [default-props

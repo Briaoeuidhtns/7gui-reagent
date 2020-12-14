@@ -132,8 +132,8 @@
                                         (partial + resolution))
                reset-time! (fn [_] (rswap! state assoc :time 0))
                duration (r/cursor state [:duration])
-               duration-id (random-uuid)
-               bar-id (random-uuid)]
+               duration-id (util/new-id "duration")
+               bar-id (util/new-id "progress")]
     (let [{:keys [time]} @state
           clamped-time (-> time
                            (max 1)

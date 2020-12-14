@@ -1,0 +1,10 @@
+{:builds {:app {:asset-path "js"
+                :devtools {:after-load gui.core/init!
+                           :http-port 8080
+                           :http-root "public"}
+                :modules {:main {:init-fn gui.core/init!}}
+                :output-dir "public/js"
+                :target :browser}}
+ :dependencies
+   [[reagent "1.0.0-rc1" :exclusions [cljsjs/react cljsjs/react-dom]]]
+ :source-paths ["src"]}

@@ -1,0 +1,3 @@
+{:fn-map {"r/with-let" :binding}
+ :map {:comma? false}
+ :style [:binding-nl :hiccup :how-to-ns]}

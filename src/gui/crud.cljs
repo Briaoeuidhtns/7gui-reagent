@@ -95,7 +95,10 @@
 
 (defn crud
   []
-  (r/with-let [state (r/atom {:names {}
+  (r/with-let [state (r/atom {:names (zipmap (repeatedly #(util/new-id "name"))
+                                             ["Emil, Hans"
+                                              "Mustermann, Max"
+                                              "Tisch, Roman"])
                               :prefix ""
                               :input {:name "" :surname ""}
                               :position nil})

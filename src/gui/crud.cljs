@@ -23,14 +23,14 @@
                       default-props
                       (dissoc props :filter))
        (for [[val item] filtered]
-         ^{:key (hash item)}
+         ^{:key val}
          [:option {:value val}
           item])])))
 
 (defn name-input
   [fullname]
-  (r/with-let [name-id (random-uuid)
-               surname-id (random-uuid)
+  (r/with-let [name-id (util/new-id "name")
+               surname-id (util/new-id "surname")
                name (r/cursor fullname [:name])
                surname (r/cursor fullname [:surname])]
     [:div {:style {:display "grid"
@@ -45,30 +45,53 @@
      [util/input surname :id surname-id :style {:grid-area "surname"}]]))
 
 (defn crud-button-bar
-  [{:keys [on-create on-update on-delete]}]
+  [& {:keys [on-create on-update on-delete has-selection?]}]
   [:div {:style {:display "grid"
                  :grid-area "btnbar"
                  :grid-auto-flow "column"
                  :justify-content "start"}}
-   [:button {:on-click on-create}
+   [:button {:on-click #(on-create)}
     "Create"]
-   [:button {:on-click on-update}
+   [:button {:on-click #(on-update) :disabled (not has-selection?)}
     "Update"]
-   [:button {:on-click on-delete}
+   [:button {:on-click #(on-delete) :disabled (not has-selection?)}
     "Delete"]])
 
-(defn name-create
-  [{{:keys [name surname]} :input :as state}]
-  (update state :names conj (cl-format nil "~a, ~a" surname name)))
+(defn filter-fn [prefix val] (str/starts-with? val prefix))
 
-(defn name-update
-  [{{:keys [name surname]} :input :as state}]
-  (update state :names conj (cl-format nil "~a, ~a" surname name)))
+(defn fix-selection
+  "Select something new if the current selection is invalid, i.e., filtered or deleted"
+  [state]
+  (let [{:keys [names position prefix]} state
+        selected (get names position)]
+    ;; valid states:
+    ;;   - Position is nil
+    ;;   - Position is not nil, and still exists, and matches pred
+    (if (or (not position) (and selected (filter-fn prefix selected)))
+      ;; Selection still valid
+      state
+      ;; Adjust selection to first valid position
+      (assoc state
+        :position (ffirst (filter (comp (partial filter-fn prefix) val)
+                            names))))))
 
-(defn name-delete
+(defn create-name
   [{{:keys [name surname]} :input :as state}]
-  (update state :names conj (cl-format nil "~a, ~a" surname name)))
+  (update state
+          :names
+          assoc
+          (util/new-id "name")
+          (cl-format nil "~a, ~a" surname name)))
 
+(defn update-name
+  [{{:keys [name surname]} :input :keys [position] :as state}]
+  (if position
+    (update state :names assoc position (cl-format nil "~a, ~a" surname name))
+    (throw (ex-info "Position is nil, can't update" {:state state}))))
+
+(defn delete-name
+  [{:keys [position] :as state}]
+  (fix-selection (update state :names dissoc position)))
 
 (defn crud
   []
@@ -79,25 +102,13 @@
                names-state (r/cursor state [:names])
                name-state (r/cursor state [:input])
                position-state (r/cursor state [:position])
-               filter-id (random-uuid)
-               filter-fn (fn [prefix val] (str/starts-with? val prefix))
-               set-filter
-               (fn [e]
-                 (rswap!
-                   state
-                   (fn [s]
-                     (let [prefix (.. e -target -value)
-                           s (assoc s :prefix prefix)
-                           {:keys [names position]} s
-                           selected (get names position)]
-                       (if (or (not selected) (filter-fn prefix selected))
-                         s ;selection still valid
-                         (assoc s
-                           :position (ffirst
-                                       (filter (comp (partial filter-fn prefix)
-                                                     val)
-                                         names))))))))]
-    (let [{:keys [prefix]} @state]
+               filter-id (util/new-id "filter")
+               set-filter (fn [e]
+                            (rswap! state
+                                    #(fix-selection
+                                        (assoc %
+                                          :prefix (.. e -target -value)))))]
+    (let [{:keys [prefix position]} @state]
       [:div.card
        {:style {:grid
                   "\"filter none\"
@@ -117,4 +128,12 @@
         :style
         {:grid-area "names"}]
        [name-input name-state]
-       [crud-button-bar]])))
+       [crud-button-bar
+        :has-selection?
+        position
+        :on-create
+        (partial rswap! state create-name)
+        :on-update
+        (partial rswap! state update-name)
+        :on-delete
+        (partial rswap! state delete-name)]])))

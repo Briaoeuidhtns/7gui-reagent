@@ -5,6 +5,7 @@
    [reagent.dom :as rd]
    [clojure.pprint :refer [cl-format]]
    [gui.crud :refer [crud]]
+   [gui.drawer :refer [drawer]]
    [gui.util :as util]))
 
 (defn counter
@@ -173,7 +174,13 @@
 
 (defn app
   []
-  [:<> [counter] [temperature-converter] [flight-booker] [timer] [crud]])
+  [:<>
+   [counter]
+   [temperature-converter]
+   [flight-booker]
+   [timer]
+   [crud]
+   [drawer]])
 
 (defn ^:export init!
   []

@@ -1,6 +1,6 @@
 S := formula / number / coord / text
 
-formula := <'='> call
+<formula> := <'='> call
 
 col := #'[A-Z]+'
 row := #'[0-9]+'
@@ -10,11 +10,12 @@ range := coord <':'> coord
 
 number := #'[+-]?\d*\.?\d+'
 
-text := #".+"
+text := #"[^=].*"
 
 fn := #'[A-Za-z_]+'
 <arg> := call | number | coord | range
-<argv> := <ws?> arg <ws?> [<',' ws?> arg] <ws?>
+<args> := <ws?> arg <ws?> [<',' ws?> args] <ws?>
+argv := args
 call := fn <'('> argv <')'>
 
 ws := #'\s+'

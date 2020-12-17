@@ -1,3 +1,2 @@
-{:ignored-unused-namespaces [build.inline]
- :known-macros [reagent.core/with-let instaparse.core/defparser]
+{:known-macros [reagent.core/with-let instaparse.core/defparser]
  :known-tags [inline/resource inline/file]}

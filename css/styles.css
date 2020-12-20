@@ -19,3 +19,14 @@ html {
 .invalid {
   background-color: red;
 }
+
+.context-menu .entry {
+    display: block;
+    padding: 4px 12px;
+    text-decoration: none;
+    color: black;
+}
+
+.context-menu .entry:hover {
+    background-color: lightgrey;
+}

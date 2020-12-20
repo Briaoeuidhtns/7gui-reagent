@@ -1,30 +1,42 @@
 (ns gui.drawer
   (:require
    [reagent.core :as r :refer [rswap!]]
-   [reagent.ratom :as ra]))
+   [reagent.ratom :as ra]
+   [gui.undo :as undo]
+   [gui.modal :as modal]))
+
+(defn circle-slider
+  [radius]
+  [:input {:type "range"
+           :min 1
+           :max 100
+           :value @radius
+           :on-change (fn [e]
+                        (reset! radius (.. e -target -value)))}])
 
 (defn circle
   [state & {:keys [hovered?]}]
-  (r/with-let [handle-edit
-               (fn [e]
-                 (.stopPropagation e)
-                 (let [r (js/Number.parseFloat (js/prompt "new diameter?"))]
-                   (when-not (js/Number.isNaN r) (rswap! state assoc 1 r))))]
+  (r/with-let [edit (r/atom false)
+               handle-edit (fn []
+                             (reset! edit (second @state))
+                             (modal/on-dialog :body [circle-slider edit]
+                                              :on-close
+                                                (fn []
+                                                  (rswap! state assoc 1 @edit)
+                                                  (reset! edit false))))
+               on-context-menu (modal/on-context-menu [modal/contextmenu-item
+                                                       "Adjust diameter.."
+                                                       handle-edit])]
     (let [[[x y] r] @state]
       [:circle {:cx x
                 :cy y
-                :r r
+                :r (or @edit
+                     r)
                 :fill (if hovered?
                         "grey"
                         "none")
                 :stroke "black"
-                :on-click handle-edit}])))
-
-(defn undo-redo
-  [state]
-  [:div {:style {:justify-self "center"}}
-   [:button "Undo"]
-   [:button "Redo"]])
+                :on-context-menu on-context-menu}])))
 
 (defn offset
   [el]
@@ -59,16 +71,16 @@
                                          (- (.-clientY e) off-y)])))
                handle-canvas-click
                (fn [e]
-                 (when (= "svg" (.. e -target -tagName))
-                   (let [[off-x off-y] (offset @!canvas)]
-                     (rswap! canvas
-                             update
-                             :circles
-                             conj
-                             [[(- (.-clientX e) off-x) (- (.-clientY e) off-y)]
-                              20]))))]
-    [:div.card
-     [undo-redo circles]
+                 (let [[off-x off-y] (offset @!canvas)]
+                   (rswap! canvas
+                           update
+                           :circles
+                           conj
+                           [[(- (.-clientX e) off-x) (- (.-clientY e) off-y)]
+                            20])))]
+    [:div.card {:style {:grid "\"controls\" \"canvas\""}}
+     [:div {:style {:justify-self "center"}}
+      [undo/component circles]]
      [:svg {:width width
             :height height
             :style {:border "solid black"}

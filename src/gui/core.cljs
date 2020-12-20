@@ -6,7 +6,8 @@
    [clojure.pprint :refer [cl-format]]
    [gui.crud :refer [crud]]
    [gui.drawer :refer [drawer]]
-   [gui.util :as util]))
+   [gui.util :as util]
+   [gui.modal :as modal]))
 
 (defn counter
   []
@@ -175,6 +176,8 @@
 (defn app
   []
   [:<>
+   [modal/contextmenu]
+   [modal/dialog]
    [counter]
    [temperature-converter]
    [flight-booker]

@@ -6,6 +6,7 @@
    [clojure.pprint :refer [cl-format]]
    [gui.crud :refer [crud]]
    [gui.drawer :refer [drawer]]
+   [gui.cells.core :refer [table]]
    [gui.util :as util]
    [gui.modal :as modal]))
 
@@ -178,12 +179,13 @@
   [:<>
    [modal/contextmenu]
    [modal/dialog]
-   [counter]
-   [temperature-converter]
-   [flight-booker]
-   [timer]
-   [crud]
-   [drawer]])
+   [util/card-wrapper [counter]]
+   [util/card-wrapper [temperature-converter]]
+   [util/card-wrapper [flight-booker]]
+   [util/card-wrapper [timer]]
+   [util/card-wrapper [crud]]
+   [util/card-wrapper [drawer]]
+   [util/card-wrapper [table]]])
 
 (defn ^:export init!
   []

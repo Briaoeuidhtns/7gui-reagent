@@ -6,16 +6,24 @@
    [clojure.string :as str]))
 
 (defprotocol Grid
-  (at [self x y]))
+  (at [self x y] "Get the evaluated cell at a coordinate")
+  (shape [self] "Get the shape of the grid"))
 
 (defparser parser (rc/inline "./grammar.ebnf"))
 
+(defn ord [c] (.charCodeAt c))
+
 (defn parse-col
   [col]
-  (dec
-    (reduce (fn [acc d] (+ (* acc 26) (.charCodeAt d) (- (.charCodeAt \A)) 1))
-      0
-      col)))
+  (dec (reduce (fn [acc d] (+ (* acc 26) (ord d) (- (ord \A)) 1)) 0 col)))
+
+(defn format-col
+  [idx]
+  (loop [i idx
+         s ""]
+    (if (<= 0 i)
+      (recur (dec (quot i 26)) (str (char (+ (mod i 26) (ord \A))) s))
+      s)))
 
 (defonce functions (atom {:add + :sub - :mul * :div / :mod mod}))
 

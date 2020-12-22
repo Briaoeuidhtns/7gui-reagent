@@ -1,4 +1,4 @@
-S := formula / number / coord / text
+S := formula / number / coord / text / eps
 
 <formula> := <'='> call
 

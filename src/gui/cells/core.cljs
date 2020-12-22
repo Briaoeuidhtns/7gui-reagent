@@ -23,7 +23,9 @@
         (if @focused?
           (let [val (editable-at grid x y)]
             {:value @val :on-change #(reset! val (.. % -target -value))})
-          {:value (formula/at grid x y) :on-change #()})
+          {:value (str (let [val (formula/at grid x y)]
+                         (if-not (formula/failure? val) val js/NaN)))
+           :on-change #()})
         {:on-focus #(reset! focused? true)
          :on-blur #(reset! focused? false)})]]))
 
@@ -40,6 +42,7 @@
          (doall (for [y (range grid-y)]
                   ^{:key y}
                   [:tr
-                   [:td (inc y)]
+                   [:th {:scope "row"}
+                    (inc y)]
                    (doall (for [x (range grid-x)]
                             ^{:key x} [cell grid x y]))]))]]])))

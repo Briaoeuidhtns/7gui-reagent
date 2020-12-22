@@ -58,19 +58,20 @@
 
 (def ^:private ^:dynamic *evaluating* #{})
 
+(def failure? (some-fn (partial instance? js/Error) insta/failure?))
+
 (defn eval
   "Evaluate a formula in the context of a given grid.
 
   Key should uniuely identify this cell, but is otherwise opaque."
   [cell key grid]
-  (when (*evaluating* key)
-    (throw (ex-info "Cyclic formula detected"
-                    {:at key
-                     :grid grid
-                     :type ::cyclic-formula
-                     :dependencies *evaluating*})))
-  (binding [*evaluating* (conj *evaluating* key)]
-    (insta/transform {:S identity
-                      :coord (partial at grid)
-                      :call (fn [f [_ & args]] (apply f args))}
-                     cell)))
+  (if-not (*evaluating* key)
+    (binding [*evaluating* (conj *evaluating* key)]
+      (insta/transform {:S identity
+                        :coord (partial at grid)
+                        :call (fn [f [_ & args]] (apply f args))}
+                       cell))
+    ;; Don't throw so ratom tracking happens properly
+    (ex-info
+      "Cyclic formula detected"
+      {:at key :grid grid :type ::cyclic-formula :dependencies *evaluating*})))

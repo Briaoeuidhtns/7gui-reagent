@@ -72,33 +72,42 @@
   sut/Grid
     (at [_ x y] (supplier [x y])))
 
-(t/deftest eval-number-literal (t/is (= 1 (sut/eval [:S 1] (->MockGrid {})))))
+(t/deftest eval-number-literal
+  (t/is (= 1 (sut/eval [:S 1] ::test (->MockGrid {})))))
 
-(t/deftest eval-text-literal (t/is (= "a" (sut/eval [:S "a"] (->MockGrid {})))))
+(t/deftest eval-text-literal
+  (t/is (= "a" (sut/eval [:S "a"] ::test (->MockGrid {})))))
 
 (defn never [& args] (throw (ex-info "Shouldn't be called" args)))
 
 (t/deftest eval-call-const
-  (t/is (= 3 (sut/eval (sut/parse "=ADD(1, 2)") (->MockGrid never)))))
+  (t/is (= 3 (sut/eval (sut/parse "=ADD(1, 2)") ::test (->MockGrid never)))))
 
 (t/deftest eval-call-coords
-  (t/is
-    (= 3 (sut/eval (sut/parse "=ADD(A1, A2)") (->MockGrid {[0 0] 1 [0 1] 2})))))
+  (t/is (= 3
+           (sut/eval (sut/parse "=ADD(A1, A2)")
+                     ::test
+                     (->MockGrid {[0 0] 1 [0 1] 2})))))
 
 (t/deftest eval-call-lin-range
   (t/is (= 6
            (sut/eval (sut/parse "=ADD(A1:A3)")
+                     ::test
                      (->MockGrid {[0 0] 1 [0 1] 2 [0 2] 3})))))
 
 (t/deftest eval-call-grid-range
   (t/is (= 10
            (sut/eval (sut/parse "=ADD(A1:B2)")
+                     ::test
                      (->MockGrid {[0 0] 1 [0 1] 2 [1 0] 3 [1 1] 4})))))
 
 (t/deftest eval-call-rev-range
   (t/is (= 6
            (sut/eval (sut/parse "=ADD(A3:A1)")
+                     ::test
                      (->MockGrid {[0 0] 1 [0 1] 2 [0 2] 3})))))
 
 (t/deftest eval-call-nested
-  (t/is (= 6 (sut/eval (sut/parse "=ADD(ADD(1, 2), 3)") (->MockGrid never)))))
+  (t/is
+    (= 6
+       (sut/eval (sut/parse "=ADD(ADD(1, 2), 3)") ::test (->MockGrid never)))))

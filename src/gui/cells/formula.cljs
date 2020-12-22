@@ -48,9 +48,21 @@
        :fn (comp @functions keyword str/lower-case #(str/replace % #"_" "-"))
        :text identity})))
 
+(def ^:private ^:dynamic *evaluating* #{})
+
 (defn eval
-  [cell grid]
-  (insta/transform {:S identity
-                    :coord (partial at grid)
-                    :call (fn [f [_ & args]] (apply f args))}
-                   cell))
+  "Evaluate a formula in the context of a given grid.
+
+  Key should uniuely identify this cell, but is otherwise opaque."
+  [cell key grid]
+  (when (*evaluating* key)
+    (throw (ex-info "Cyclic formula detected"
+                    {:at key
+                     :grid grid
+                     :type ::cyclic-formula
+                     :dependencies *evaluating*})))
+  (binding [*evaluating* (conj *evaluating* key)]
+    (insta/transform {:S identity
+                      :coord (partial at grid)
+                      :call (fn [f [_ & args]] (apply f args))}
+                     cell)))

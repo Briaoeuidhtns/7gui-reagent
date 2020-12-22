@@ -1,9 +1,11 @@
 html {
-    box-sizing: border-box;
+  box-sizing: border-box;
 }
 
-*, *::before, *::after {
-    box-sizing: inherit;
+*,
+*::before,
+*::after {
+  box-sizing: inherit;
 }
 
 .card {
@@ -21,12 +23,24 @@ html {
 }
 
 .context-menu .entry {
-    display: block;
-    padding: 4px 12px;
-    text-decoration: none;
-    color: black;
+  display: block;
+  padding: 4px 12px;
+  text-decoration: none;
+  color: black;
 }
 
 .context-menu .entry:hover {
-    background-color: lightgrey;
+  background-color: lightgrey;
+}
+
+table,
+th,
+td {
+  border: 1px solid black;
+  border-collapse: collapse;
+}
+
+td > input:not(:focus) {
+  text-align: center;
+  border-color: transparent;
 }

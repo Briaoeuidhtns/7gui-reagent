@@ -3,7 +3,8 @@
   (:require
    [shadow.resource :as rc]
    [instaparse.core :as insta :refer-macros [defparser]]
-   [clojure.string :as str]))
+   [clojure.string :as str]
+   [clojure.pprint :refer [cl-format]]))
 
 (defprotocol Grid
   (at [self x y] "Get the evaluated cell at a coordinate")
@@ -58,12 +59,17 @@
 
 (def ^:private ^:dynamic *evaluating* #{})
 
-(def failure? (some-fn (partial instance? js/Error) insta/failure?))
+(defn failure?
+  [val]
+  (when (or (instance? js/Error val) (insta/failure? val)) val))
 
+(defn format-failure [err] (or (ex-message err) (pr-str err)))
+
+(defn spy [a] (prn a) a)
 (defn eval
   "Evaluate a formula in the context of a given grid.
 
-  Key should uniuely identify this cell, but is otherwise opaque."
+  Key should uniquely identify this cell, but is otherwise opaque."
   [cell key grid]
   (if-not (*evaluating* key)
     (binding [*evaluating* (conj *evaluating* key)]
@@ -73,5 +79,8 @@
                        cell))
     ;; Don't throw so ratom tracking happens properly
     (ex-info
-      "Cyclic formula detected"
+      (cl-format nil
+                 "Cyclic formula detected at ~a.\nCell depends on ~a"
+                 key
+                 *evaluating*)
       {:at key :grid grid :type ::cyclic-formula :dependencies *evaluating*})))

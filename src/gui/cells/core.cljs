@@ -2,7 +2,8 @@
   (:refer-clojure :exclude [eval])
   (:require
    [reagent.core :as r]
-   [gui.cells.formula :as formula]))
+   [gui.cells.formula :as formula]
+   [gui.modal :as modal]))
 
 (defn ^:private eval
   [self path]
@@ -17,17 +18,21 @@
 (defn cell
   [grid x y]
   (r/with-let [focused? (r/atom false)]
-    [:td
-     [:input
-      (r/merge-props
-        (if @focused?
-          (let [val (editable-at grid x y)]
-            {:value @val :on-change #(reset! val (.. % -target -value))})
-          {:value (str (let [val (formula/at grid x y)]
-                         (if-not (formula/failure? val) val js/NaN)))
-           :on-change #()})
-        {:on-focus #(reset! focused? true)
-         :on-blur #(reset! focused? false)})]]))
+    (let [failure (some-> (formula/at grid x y)
+                          formula/failure?
+                          formula/format-failure)]
+      [:td {:title failure}
+       [:input
+        (r/merge-props
+          (if @focused?
+            (let [val (editable-at grid x y)]
+              {:value @val :on-change #(reset! val (.. % -target -value))})
+            {:value (str (let [val (formula/at grid x y)]
+                           (if-not (formula/failure? val) val js/NaN)))
+             :on-change #()})
+          {:on-focus #(reset! focused? true)
+           :on-blur #(reset! focused? false)
+           :class (when (and failure (not @focused?)) "invalid")})]])))
 
 (defn table
   []

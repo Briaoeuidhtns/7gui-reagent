@@ -1,6 +1,7 @@
 .rebel_readline_history
 /.shadow-cljs/
 /public/js
+/public/index.html
 /out/
 
 # Created by https://www.toptal.com/developers/gitignore/api/clojure,node

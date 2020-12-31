@@ -2,7 +2,9 @@
   (:refer-clojure :exclude [partial])
   (:require
    [reagent.core :as r :refer [rswap! partial]]
+   ["react-dom" :as react-dom]
    [reagent.dom :as rd]
+   [reagent.dom.server :as rd.server]
    [clojure.pprint :refer [cl-format]]
    [gui.crud :refer [crud]]
    [gui.drawer :refer [drawer]]
@@ -187,7 +189,22 @@
    [util/card-wrapper [drawer]]
    [util/card-wrapper [table]]])
 
+(defn container
+  [app]
+  [:html
+   [:head
+    [:meta {:charset "UTF-8"}]
+    [:meta {:name "author" :content "Brian Brunner"}]
+    [:link {:rel "stylesheet" :href "css/styles.css"}]
+    [:title "Reagent 7GUI"]]
+   [:body
+    [:div#app app]
+    [:script {:src "js/main.js" :type "text/javascript"}]]])
+
 (defn ^:export init!
   []
-  (enable-console-print!)
-  (rd/render [app] (.getElementById js/document "app")))
+  (react-dom/hydrate (r/as-element [app]) (.getElementById js/document "app")))
+
+(defn prerender [] (rd.server/render-to-string [container [app]]))
+
+(enable-console-print!)

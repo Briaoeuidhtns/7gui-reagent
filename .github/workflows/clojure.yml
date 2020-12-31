@@ -45,7 +45,7 @@ jobs:
       run: yarn shadow-cljs compile :test
 
     - name: Build
-      run: yarn shadow-cljs release :app
+      run: yarn shadow-cljs release :prerender :app
 
     - name: Deploy
       uses: JamesIves/github-pages-deploy-action@3.7.1

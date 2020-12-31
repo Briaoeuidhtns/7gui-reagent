@@ -5,8 +5,13 @@
           :modules {:main {:init-fn gui.core/init!}}
           :output-dir "public/js"
           :target :browser}
+    :prerender {:build-hooks [(gui.build/autorun-node! "public/index.html")]
+                :main gui.build/prerender-to!
+                :output-to "out/prerender.js"
+                :target :node-script}
     :test {:autorun true :output-to "out/node-tests.js" :target :node-test}}
  :dependencies [[reagent "1.0.0" :exclusions [cljsjs/react cljsjs/react-dom]]
                 [instaparse "1.4.10"]
-                [binaryage/devtools "1.0.2"]]
+                [binaryage/devtools "1.0.2"]
+                [babashka/process "0.0.1"]]
  :source-paths ["src" "test"]}

@@ -1,0 +1,16 @@
+#+title: Reagent 7GUIs
+
+An implementation of [[http://eugenkiss.github.io/7guis/][7GUIs]] in [[https://clojurescript.org/][ClojureScript]] and [[http://reagent-project.github.io/][Reagent]]. There is a hosted version [[https://briaoeuidhtns.github.io/7gui-reagent/][here]].
+
+* Running
+Install npm dependencies:
+#+begin_src bash
+  yarn install
+#+end_src
+
+Start a dev server:
+#+begin_src bash
+  yarn shadow-cljs watch :prerender :app
+#+end_src
+
+The site will be available at [[http://localhost:8080]], and the build dashboard at [[http://localhost:9630]]
